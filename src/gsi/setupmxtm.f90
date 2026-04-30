@@ -74,7 +74,7 @@ subroutine setupmxtm(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diag
   use oneobmod, only: magoberr,maginnov,oneobtest
   use gridmod, only: nsig,get_ij,twodvar_regional
   use constants, only: zero,tiny_r_kind,one,half,one_tenth,r10,r1000,wgtlim, &
-            two,cg_term,huge_single,three
+            two,cg_term,huge_single,three,epsdup
   use jfunc, only: jiter,last,miter
   use qcmod, only: dfact,dfact1,npres_print
   use convinfo, only: nconvtype,cermin,cermax,cgross,cvar_b,cvar_pg,ictype
@@ -203,8 +203,8 @@ subroutine setupmxtm(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diag
   hr_offset=min_offset/60.0_r_kind
   do k=1,nobs
      do l=k+1,nobs
-        if(data(ilat,k) == data(ilat,l) .and.  &
-           data(ilon,k) == data(ilon,l) .and.  &
+        if(abs(data(ilat,k)-data(ilat,l))<epsdup .and.  &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and.  &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l))then
 

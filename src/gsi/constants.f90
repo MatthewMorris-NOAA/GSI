@@ -68,7 +68,7 @@ module constants
   public :: somigliana,grav_equator,grav_ratio,flattening,semi_major_axis
   public :: n_b,n_a,eccentricity,huge_single,constoz,g_over_rd,amsua_clw_d2
   public :: amsua_clw_d1,n_c,rd_over_g,zero_ilong
-  public :: r10,r100,sqrt_tiny_r_kind,r2000,r4000,r10000
+  public :: r10,r100,sqrt_tiny_r_kind,r2000,r4000,r10000,epsdup
   public :: r0_01,r0_02,r0_03,r0_04,r0_05,r1_25,r400,r2400
   public :: cpf_a0, cpf_a1, cpf_a2, cpf_b0, cpf_b1, cpf_c0, cpf_c1, cpf_d, cpf_e
   public :: psv_a, psv_b, psv_c, psv_d
@@ -152,6 +152,7 @@ module constants
   real(r_kind),parameter::  r4000     = 4000.0_r_kind
   real(r_kind),parameter::  r3600     = 3600.0_r_kind
   real(r_kind),parameter::  r10000    = 10000.0_r_kind
+  real(r_kind),parameter::  epsdup    = 0.005_r_kind
   real(r_kind),parameter:: z_w_max    = 30.0_r_kind     ! maximum diurnal thermocline thickness
   real(r_kind),parameter:: tfrozen    = 271.2_r_kind    ! sea water frozen point temperature
 

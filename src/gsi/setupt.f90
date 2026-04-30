@@ -62,7 +62,7 @@ subroutine setupt(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
 
   use constants, only: zero, one, four,t0c,rd_over_cp,three,rd_over_cp_mass,ten
   use constants, only: tiny_r_kind,half,two
-  use constants, only: huge_single,r1000,wgtlim,r10,fv
+  use constants, only: huge_single,r1000,wgtlim,r10,fv,epsdup
   use constants, only: one_quad
   use convinfo, only: nconvtype,cermin,cermax,cgross,cvar_b,cvar_pg,ictype,icsubtype
   use convinfo, only: ibeta,ikapa
@@ -318,7 +318,7 @@ subroutine setupt(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   logical sfctype, landsfctype
   logical iqtflg
   logical aircraftobst
-  logical duplogic
+  logical duplogic,rtmasfctype
 
   logical:: in_curbin, in_anybin, save_jacobian
   logical proceed
@@ -471,11 +471,13 @@ subroutine setupt(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   do k=1,nobs
      ikx=nint(data(ikxx,k))
      itype=ictype(ikx)
+     rtmasfctype =(itype>=180 .and. itype<=195)
      landsfctype =( itype==181 .or. itype==183 .or. itype==187 )
      do l=k+1,nobs
-        if (twodvar_regional .or. (hofx_2m_sfcfile .and. landsfctype) ) then
-           duplogic=data(ilat,k) == data(ilat,l) .and.  &
-           data(ilon,k) == data(ilon,l) .and.  &
+        duplogic=.false.
+        if (twodvar_regional .or. (l_rtma3d .and. rtmasfctype) .or. (hofx_2m_sfcfile .and. landsfctype) ) then
+           duplogic=abs(data(ilat,k)-data(ilat,l))<epsdup .and.  &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and.  &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l)
          else

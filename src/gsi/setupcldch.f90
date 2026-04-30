@@ -78,7 +78,7 @@ subroutine setupcldch(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_dia
   use gridmod, only: nsig
   use gridmod, only: get_ij
   use constants, only: zero,tiny_r_kind,one,half,one_tenth,wgtlim, &
-            two,cg_term,huge_single,r1000
+            two,cg_term,huge_single,r1000,epsdup
   use jfunc, only: jiter,last,miter
   use qcmod, only: dfact,dfact1,npres_print
   use qcmod, only: pcldch,scale_cv
@@ -213,8 +213,8 @@ subroutine setupcldch(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_dia
   dup=one
   do k=1,nobs
      do l=k+1,nobs
-        if(data(ilat,k) == data(ilat,l) .and. &
-           data(ilon,k) == data(ilon,l) .and. &
+        if(abs(data(ilat,k)-data(ilat,l))<epsdup .and. &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and. &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l))then
            if(l_closeobs) then

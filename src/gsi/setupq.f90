@@ -162,7 +162,7 @@ subroutine setupq(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   use gridmod, only: lat2,lon2,nsig,get_ijk,twodvar_regional
   use constants, only: zero,one,r1000,r10,r100
   use constants, only: huge_single,wgtlim,three
-  use constants, only: tiny_r_kind,five,half,two,huge_r_kind,r0_01
+  use constants, only: tiny_r_kind,five,half,two,huge_r_kind,r0_01,epsdup
   use qcmod, only: npres_print,ptopq,pbotq,dfact,dfact1,njqc,vqc,nvqc
   use jfunc, only: jiter,last,jiterstart,miter,superfact,limitqobs,hofx_2m_sfcfile
   use convinfo, only: nconvtype,cermin,cermax,cgross,cvar_b,cvar_pg,ictype
@@ -265,7 +265,7 @@ subroutine setupq(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   logical,dimension(nobs):: luse,muse
   integer(i_kind),dimension(nobs):: ioid ! initial (pre-distribution) obs ID
 
-  logical duplogic
+  logical duplogic,rtmasfctype
 
   logical:: in_curbin, in_anybin, save_jacobian
   type(qNode),pointer:: my_head
@@ -383,11 +383,13 @@ subroutine setupq(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   do k=1,nobs
      ikx=nint(data(ikxx,k))
      itype=ictype(ikx)
+     rtmasfctype =(itype>=180 .and. itype<=195)
      landsfctype =( itype==181 .or. itype==183 .or. itype==187 )
      do l=k+1,nobs
-        if (twodvar_regional .or. (hofx_2m_sfcfile .and. landsfctype) ) then
-           duplogic=data(ilat,k) == data(ilat,l) .and.  &
-           data(ilon,k) == data(ilon,l) .and.  &
+        duplogic=.false.
+        if (twodvar_regional .or. (l_rtma3d .and. rtmasfctype) .or. (hofx_2m_sfcfile .and. landsfctype) ) then
+           duplogic=abs(data(ilat,k)-data(ilat,l))<epsdup .and.  &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and.  &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l)
          else

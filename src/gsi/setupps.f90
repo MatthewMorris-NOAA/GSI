@@ -130,7 +130,7 @@ subroutine setupps(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsa
   use gridmod, only: nsig,get_ij,twodvar_regional
   use constants, only: zero,one_tenth,one,half,pi,g_over_rd, &
              huge_r_kind,tiny_r_kind,two,huge_single, &
-             r1000,wgtlim,tiny_single,r10,three
+             r1000,wgtlim,tiny_single,r10,three,epsdup
   use jfunc, only: jiter,last,jiterstart,miter
   use qcmod, only: dfact,dfact1,npres_print,vqc,nvqc
   use guess_grids, only: hrdifsig,ges_lnprsl,nfldsig,ntguessig
@@ -301,8 +301,8 @@ subroutine setupps(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsa
   dup=one
   do k=1,nobs
      do l=k+1,nobs
-        if(data(ilat,k) == data(ilat,l) .and. &
-           data(ilon,k) == data(ilon,l) .and. &
+        if(abs(data(ilat,k)-data(ilat,l))<epsdup .and. &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and. &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l))then
            if(l_closeobs) then

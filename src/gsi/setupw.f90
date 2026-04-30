@@ -56,7 +56,7 @@ subroutine setupw(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   use guess_grids, only: tropprs,sfcmod_mm5
   use guess_grids, only: ges_lnprsl,comp_fact10,pbl_height
   use constants, only: zero,half,one,tiny_r_kind,two, &
-           three,rd,grav,four,five,huge_single,r1000,wgtlim,r10,r400
+           three,rd,grav,four,five,huge_single,r1000,wgtlim,r10,r400,epsdup
   use constants, only: grav_ratio,flattening,deg2rad, &
        grav_equator,somigliana,semi_major_axis,eccentricity
   use jfunc, only: jiter,last,jiterstart,miter
@@ -65,7 +65,7 @@ subroutine setupw(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   use converr_uv, only: ptabl_uv
   use converr, only: ptabl
   use rapidrefresh_cldsurf_mod, only: l_PBL_pseudo_SurfobsUV, pblH_ration,pps_press_incr
-  use rapidrefresh_cldsurf_mod, only: l_closeobs, i_gsdqc
+  use rapidrefresh_cldsurf_mod, only: l_closeobs, i_gsdqc, l_rtma3d
 
   use m_dtime, only: dtime_setup, dtime_check
 
@@ -312,7 +312,7 @@ subroutine setupw(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   logical,dimension(nobs):: luse,muse
   logical:: muse_u,muse_v
   integer(i_kind),dimension(nobs):: ioid ! initial (pre-distribution) obs ID
-  logical lowlevelsat,duplogic
+  logical lowlevelsat,duplogic,rtmasfctype
   logical msonetob
   logical proceed
 
@@ -457,10 +457,14 @@ subroutine setupw(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_diagsav
   hr_offset=min_offset/60.0_r_kind
   dup=one
   do k=1,nobs
+     ikx=nint(data(ikxx,k))
+     itype=ictype(ikx)
+     rtmasfctype =(itype>=280.and.itype<=295)
      do l=k+1,nobs
-        if (twodvar_regional) then
-           duplogic=data(ilat,k) == data(ilat,l) .and.  &
-           data(ilon,k) == data(ilon,l) .and.  &
+        duplogic=.false.
+        if (twodvar_regional .or. (l_rtma3d .and. rtmasfctype) ) then
+           duplogic=abs(data(ilat,k)-data(ilat,l))<epsdup .and.  &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and.  &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l)
          else

@@ -85,7 +85,7 @@ subroutine setupwspd10m(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_d
   use gridmod, only: nsig
   use gridmod, only: get_ij,twodvar_regional,regional,pt_ll
   use constants, only: zero,tiny_r_kind,one,one_tenth,half,wgtlim,rd,grav,&
-            two,cg_term,three,four,five,ten,huge_single,r1000,r3600,&
+            two,cg_term,three,four,five,ten,huge_single,r1000,r3600,epsdup,&
             grav_ratio,flattening,grav,grav_equator,somigliana, &
             semi_major_axis,deg2rad,eccentricity
   use jfunc, only: jiter,last,jiterstart,miter
@@ -255,8 +255,8 @@ subroutine setupwspd10m(obsLL,odiagLL,lunin,mype,bwork,awork,nele,nobs,is,conv_d
   dup=one
   do k=1,nobs
      do l=k+1,nobs
-        if(data(ilat,k) == data(ilat,l) .and.  &
-           data(ilon,k) == data(ilon,l) .and.  &
+        if(abs(data(ilat,k)-data(ilat,l))<epsdup .and.  &
+           abs(data(ilon,k)-data(ilon,l))<epsdup .and.  &
            data(ier,k) < r1000 .and. data(ier,l) < r1000 .and. &
            muse(k) .and. muse(l))then
 
